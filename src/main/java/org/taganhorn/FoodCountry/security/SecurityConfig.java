@@ -29,7 +29,7 @@ public class SecurityConfig {
     public SecurityWebFilterChain securityWebFilterChain(
             ServerHttpSecurity http) {
         return http.authorizeExchange()
-                .pathMatchers("/user/auth/email").permitAll()
+                .pathMatchers("/user/auth/*").permitAll()
                 .anyExchange().authenticated().and()
                 .csrf().disable()
                 .anonymous().and()

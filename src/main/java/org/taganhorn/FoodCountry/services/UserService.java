@@ -77,7 +77,7 @@ public class UserService {
         try {
             UserEntity userEntity = usersRepository.findByEmail(name).get();
             if (!userEntity.getPassword().equals(password)) {
-                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Password is wrong");
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "PASSWORD_IS_WRONG");
             }
             String token = jwtTokenUtil.generateToken(userEntity);
             String refreshToken = jwtTokenUtil.generateRefreshToken(token);

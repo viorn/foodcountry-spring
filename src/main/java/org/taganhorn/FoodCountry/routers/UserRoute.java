@@ -1,10 +1,12 @@
 package org.taganhorn.FoodCountry.routers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import org.taganhorn.FoodCountry.entities.data.UserEntity;
 import org.taganhorn.FoodCountry.entities.request.AuthRequestBody;
 import org.taganhorn.FoodCountry.entities.request.RefreshTokenRequestBody;
@@ -37,17 +39,19 @@ public class UserRoute {
     }
 
     @PostMapping("auth/refresh")
-    Mono<AuthResponseBody> refresh(@RequestBody RefreshTokenRequestBody body,
-                                   Authentication authentication) {
+    Mono<AuthResponseBody> refresh(@RequestHeader("Authorization") String authorizationHeader,
+                                   @RequestBody RefreshTokenRequestBody body) {
         return Mono.fromCallable(() -> {
-            String authToken = (String) ((UsernamePasswordAuthenticationToken) authentication).getCredentials();
+            if (authorizationHeader.isEmpty())
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "TOKEN_IS_NOT_FOUNDED");
+            String authToken = authorizationHeader.substring(7);
             return userService.generateTokenByRefreshToken(authToken, body.getRefreshToken());
         }).subscribeOn(Schedulers.elastic());
     }
 
     @PostMapping("logout")
     Mono<SimpleResponse> logout(Authentication authentication) {
-        return Mono.fromCallable(()->{
+        return Mono.fromCallable(() -> {
             String authToken = (String) ((UsernamePasswordAuthenticationToken) authentication).getCredentials();
             userService.removeRefreshToken(authToken);
             return SimpleResponse.SUCCESS;
