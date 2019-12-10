@@ -2,7 +2,6 @@ package org.taganhorn.FoodCountry.routers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -16,25 +15,22 @@ import org.taganhorn.FoodCountry.entities.response.UserResponseBody;
 import org.taganhorn.FoodCountry.entities.response.UsersListResponseBody;
 import org.taganhorn.FoodCountry.security.JwtTokenUtil;
 import org.taganhorn.FoodCountry.security.UserPrincipal;
-import org.taganhorn.FoodCountry.services.UserService;
+import org.taganhorn.FoodCountry.services.UsersService;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
-
-import java.util.Iterator;
-import java.util.List;
 
 @RestController()
 @RequestMapping("user")
 public class UserRoute {
     @Autowired
-    private UserService userService;
+    private UsersService usersService;
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
 
     @PostMapping("auth/email")
     Mono<AuthResponseBody> auth(@RequestBody AuthRequestBody body) {
         return Mono.fromCallable(() -> {
-            return userService.generateToken(body.getName(), body.getPassword());
+            return usersService.generateToken(body.getName(), body.getPassword());
         }).subscribeOn(Schedulers.elastic());
     }
 
@@ -45,7 +41,7 @@ public class UserRoute {
             if (authorizationHeader.isEmpty())
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "TOKEN_IS_NOT_FOUNDED");
             String authToken = authorizationHeader.substring(7);
-            return userService.generateTokenByRefreshToken(authToken, body.getRefreshToken());
+            return usersService.generateTokenByRefreshToken(authToken, body.getRefreshToken());
         }).subscribeOn(Schedulers.elastic());
     }
 
@@ -53,7 +49,7 @@ public class UserRoute {
     Mono<SimpleResponse> logout(Authentication authentication) {
         return Mono.fromCallable(() -> {
             String authToken = (String) ((UsernamePasswordAuthenticationToken) authentication).getCredentials();
-            userService.removeRefreshToken(authToken);
+            usersService.removeRefreshToken(authToken);
             return SimpleResponse.SUCCESS;
         }).subscribeOn(Schedulers.elastic());
     }
@@ -62,25 +58,25 @@ public class UserRoute {
     Mono<UserResponseBody> getUser(Authentication authentication) {
         return Mono.fromCallable(() -> {
             UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-            UserEntity userEntity = userService.getUserById(userPrincipal.getId());
+            UserEntity userEntity = usersService.getUserById(userPrincipal.getId());
             userEntity.setTokens(null);
             return new UserResponseBody(userEntity);
         }).subscribeOn(Schedulers.elastic());
     }
 
     @GetMapping("{id}")
-    Mono<UserResponseBody> getUserById(@PathVariable("id") Integer userId) {
+    Mono<UserResponseBody> getUserById(@PathVariable("id") Long userId) {
         return Mono.fromCallable(() -> {
-            UserEntity userEntity = userService.getUserById(userId);
+            UserEntity userEntity = usersService.getUserById(userId);
             userEntity.setTokens(null);
             return new UserResponseBody(userEntity);
         }).subscribeOn(Schedulers.elastic());
     }
 
-    @GetMapping("all")
-    Mono<UsersListResponseBody> getAllUser() {
+    @GetMapping("list")
+    Mono<UsersListResponseBody> getAllUser(@RequestParam Integer page, @RequestParam Integer limit) {
         return Mono.fromCallable(() -> {
-            return new UsersListResponseBody(userService.getAllUsers());
+            return usersService.getUsersList(page, limit);
         }).subscribeOn(Schedulers.elastic());
     }
 }

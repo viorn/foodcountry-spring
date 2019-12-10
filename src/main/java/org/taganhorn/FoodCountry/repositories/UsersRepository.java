@@ -7,6 +7,6 @@ import org.taganhorn.FoodCountry.entities.data.UserEntity;
 import java.util.Optional;
 
 @Repository
-public interface UsersRepository extends JpaRepository<UserEntity, Integer> {
+public interface UsersRepository extends JpaRepository<UserEntity, Long> {
     Optional<UserEntity> findByEmail(String email);
 }

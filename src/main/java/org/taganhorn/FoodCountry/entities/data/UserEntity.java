@@ -14,7 +14,7 @@ import java.util.List;
 public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @Size(max = 100)
     private String name;
@@ -51,7 +51,7 @@ public class UserEntity {
         this.roles = role;
     }
 
-    public UserEntity(Integer id, String name, String password, String email, String avatarUrl, List<String> roles) {
+    public UserEntity(Long id, String name, String password, String email, String avatarUrl, List<String> roles) {
         this.id = id;
         this.name = name;
         this.password = password;
@@ -60,7 +60,7 @@ public class UserEntity {
         this.roles = roles;
     }
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 

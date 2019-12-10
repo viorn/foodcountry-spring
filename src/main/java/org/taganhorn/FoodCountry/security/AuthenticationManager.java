@@ -31,7 +31,7 @@ public class AuthenticationManager implements ReactiveAuthenticationManager {
             username = null;
         }
         if (username != null && jwtTokenUtil.validateToken(authToken)) {
-            Integer id = jwtTokenUtil.getUserIdFromToken(authToken);
+            Long id = jwtTokenUtil.getUserIdFromToken(authToken);
             List<String> rolesMap = jwtTokenUtil.getRoleFromToken(authToken);
             System.out.println(Arrays.toString(rolesMap.toArray()));
             UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(

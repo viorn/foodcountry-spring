@@ -7,20 +7,17 @@ import org.taganhorn.FoodCountry.entities.data.UserEntity;
 import java.util.List;
 
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
-public class UsersListResponseBody {
+public class UsersListResponseBody extends ListResponseBody<UserEntity> {
+    public UsersListResponseBody() {
+    }
+
+    public UsersListResponseBody(List<UserEntity> list, int page, int totalPage, int limit, long totalItems) {
+        super(list, page, totalPage, limit, totalItems);
+    }
+
+    @Override
     @JsonIgnoreProperties(value = {"roles", "tokens"})
-    private List<UserEntity> list;
-
-    public UsersListResponseBody(List<UserEntity> list) {
-        this.list = list;
-    }
-
     public List<UserEntity> getList() {
-        return list;
-    }
-
-    public void setList(List<UserEntity> list) {
-        this.list = list;
+        return super.getList();
     }
 }

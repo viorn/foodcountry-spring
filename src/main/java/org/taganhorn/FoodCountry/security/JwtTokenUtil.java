@@ -27,9 +27,9 @@ public class JwtTokenUtil implements Serializable {
         });
     }
 
-    public Integer getUserIdFromToken(String token) {
+    public Long getUserIdFromToken(String token) {
         return getClaimFromToken(token, (it) -> {
-            return it.get("userId", Integer.class);
+            return it.get("userId", Long.class);
         });
     }
 

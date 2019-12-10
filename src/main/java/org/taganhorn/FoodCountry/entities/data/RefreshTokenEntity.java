@@ -10,7 +10,7 @@ import java.util.Date;
 @Table(name = "users_refresh_token")
 public class RefreshTokenEntity {
     @NotNull
-    private Integer userId;
+    private Long userId;
 
     @Id
     @NotBlank
@@ -27,17 +27,17 @@ public class RefreshTokenEntity {
     public RefreshTokenEntity() {
     }
 
-    public RefreshTokenEntity(Integer userId, String authToken, String refreshToken) {
+    public RefreshTokenEntity(Long userId, String authToken, String refreshToken) {
         this.userId = userId;
         this.authToken = authToken;
         this.refreshToken = refreshToken;
     }
 
-    public Integer getUserId() {
+    public Long getUserId() {
         return userId;
     }
 
-    public void setUserId(Integer userId) {
+    public void setUserId(Long userId) {
         this.userId = userId;
     }
 

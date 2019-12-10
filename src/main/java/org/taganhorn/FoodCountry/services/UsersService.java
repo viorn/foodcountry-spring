@@ -2,22 +2,29 @@ package org.taganhorn.FoodCountry.services;
 
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import org.taganhorn.FoodCountry.entities.data.DishEntity;
 import org.taganhorn.FoodCountry.entities.data.RefreshTokenEntity;
 import org.taganhorn.FoodCountry.entities.data.UserEntity;
 import org.taganhorn.FoodCountry.entities.response.AuthResponseBody;
+import org.taganhorn.FoodCountry.entities.response.DishesListResponseBody;
+import org.taganhorn.FoodCountry.entities.response.UsersListResponseBody;
+import org.taganhorn.FoodCountry.mock.UsersMock;
 import org.taganhorn.FoodCountry.repositories.RefreshTokenRepository;
 import org.taganhorn.FoodCountry.repositories.UsersRepository;
 import org.taganhorn.FoodCountry.security.JwtTokenUtil;
 
+import javax.annotation.PostConstruct;
 import javax.transaction.Transactional;
 import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
 
 @Service
-public class UserService {
+public class UsersService {
     @Autowired
     private UsersRepository usersRepository;
     @Autowired
@@ -26,8 +33,15 @@ public class UserService {
     private RefreshTokenRepository refreshTokenRepository;
 
     @Transactional
-    public List<UserEntity> getAllUsers() {
-        return usersRepository.findAll();
+    public UsersListResponseBody getUsersList(int page, int limit) {
+        Page<UserEntity> pages = usersRepository.findAll(PageRequest.of(page-1, limit));
+        return new UsersListResponseBody(
+                pages.getContent(),
+                page,
+                pages.getTotalPages(),
+                limit,
+                pages.getTotalElements()
+        );
     }
 
     @Transactional
@@ -36,18 +50,7 @@ public class UserService {
     }
 
     @Transactional
-    public UserEntity getUser() {
-        try {
-            UserEntity userEntity = usersRepository.findById(1).get();
-            Hibernate.initialize(userEntity.getRoles());
-            return userEntity;
-        } catch (NoSuchElementException n) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "USER_IS_NOT_FOUNDED");
-        }
-    }
-
-    @Transactional
-    public UserEntity getUserById(Integer userId) {
+    public UserEntity getUserById(Long userId) {
         try {
             UserEntity userEntity = usersRepository.findById(userId).get();
             Hibernate.initialize(userEntity.getRoles());
@@ -58,22 +61,8 @@ public class UserService {
     }
 
     @Transactional
-    public UserEntity findUserByNameAndPassword(String name, String password) {
-        try {
-            UserEntity userEntity = usersRepository.findByEmail(name).get();
-            if (!userEntity.getPassword().equals(password)) {
-                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "PASSWORD_IS_WRONG");
-            }
-            Hibernate.initialize(userEntity.getRoles());
-            return userEntity;
-        } catch (NoSuchElementException n) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "USER_IS_NOT_FOUNDED");
-        }
-    }
-
-    @Transactional
     public AuthResponseBody generateToken(String name, String password) {
-        ReentrantLock lock = null;
+        if (name.equals("SYSTEM")) throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "USER_IS_NOT_FOUNDED");
         try {
             UserEntity userEntity = usersRepository.findByEmail(name).get();
             if (!userEntity.getPassword().equals(password)) {
