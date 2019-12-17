@@ -17,7 +17,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 	implementation 'io.jsonwebtoken:jjwt:0.9.1'
-	implementation group: 'com.h2database', name: 'h2', version: '1.4.200'
+	implementation 'org.mariadb.jdbc:mariadb-java-client:1.5.7'
 	implementation group: 'org.flywaydb', name: 'flyway-core', version: '6.1.0'
 
 	testImplementation('org.springframework.boot:spring-boot-starter-test') {

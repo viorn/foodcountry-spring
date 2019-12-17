@@ -29,6 +29,7 @@ public class UserEntity {
     @Column(unique = true)
     private  String email;
 
+    @Column(columnDefinition = "TEXT")
     private String avatarUrl;
 
     @ElementCollection

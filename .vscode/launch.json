@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-FoodCountryApplication<FoodCountry>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "console": "internalConsole",
+            "mainClass": "org.taganhorn.FoodCountry.FoodCountryApplication",
+            "projectName": "FoodCountry",
+            "args": ""
+        }
+    ]
+}

@@ -18,6 +18,7 @@ public class DishEntity {
     @Size(max = 200)
     private String name;
 
+    @Column(columnDefinition = "TEXT")
     private String description;
 
     private Date createdDate;
