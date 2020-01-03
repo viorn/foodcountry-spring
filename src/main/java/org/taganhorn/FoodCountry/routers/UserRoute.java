@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.taganhorn.FoodCountry.entities.data.UserEntity;
@@ -16,6 +17,10 @@ import org.taganhorn.FoodCountry.entities.response.UsersListResponseBody;
 import org.taganhorn.FoodCountry.security.JwtTokenUtil;
 import org.taganhorn.FoodCountry.security.UserPrincipal;
 import org.taganhorn.FoodCountry.services.UsersService;
+
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
@@ -46,6 +51,9 @@ public class UserRoute {
     }
 
     @PostMapping("logout")
+    @ApiResponses( value = {
+        @ApiResponse(code = 200, message = "", response = SimpleResponse.class)
+    })
     Mono<SimpleResponse> logout(Authentication authentication) {
         return Mono.fromCallable(() -> {
             String authToken = (String) ((UsernamePasswordAuthenticationToken) authentication).getCredentials();
@@ -55,9 +63,11 @@ public class UserRoute {
     }
 
     @GetMapping
-    Mono<UserResponseBody> getUser(Authentication authentication) {
+    @ApiResponses( value = {
+        @ApiResponse(code = 200, message = "", response = UserResponseBody.class)
+    })
+    Mono<UserResponseBody> getUser(@ApiParam(hidden = true) @AuthenticationPrincipal UserPrincipal userPrincipal) {
         return Mono.fromCallable(() -> {
-            UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
             UserEntity userEntity = usersService.getUserById(userPrincipal.getId());
             userEntity.setTokens(null);
             return new UserResponseBody(userEntity);
@@ -65,6 +75,9 @@ public class UserRoute {
     }
 
     @GetMapping("{id}")
+    @ApiResponses( value = {
+        @ApiResponse(code = 200, message = "", response = UserResponseBody.class)
+    })
     Mono<UserResponseBody> getUserById(@PathVariable("id") Long userId) {
         return Mono.fromCallable(() -> {
             UserEntity userEntity = usersService.getUserById(userId);
@@ -74,6 +87,9 @@ public class UserRoute {
     }
 
     @GetMapping("list")
+    @ApiResponses( value = {
+        @ApiResponse(code = 200, message = "", response = UsersListResponseBody.class)
+    })
     Mono<UsersListResponseBody> getAllUser(@RequestParam Integer page, @RequestParam Integer limit) {
         return Mono.fromCallable(() -> {
             return usersService.getUsersList(page, limit);
